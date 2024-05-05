@@ -20,13 +20,13 @@ import subprocess
 from pathlib import Path
 
 import modal
-
+import openai
 # ## Define container dependencies
 #
 # The `app.py` script imports three third-party packages, so we include these in the example's
 # image definition.
 
-image = modal.Image.debian_slim().pip_install("streamlit", "numpy", "pandas")
+image = modal.Image.debian_slim().pip_install("streamlit", "numpy", "pandas", "openai")
 
 app = modal.App(
     name="example-modal-streamlit", image=image
@@ -59,6 +59,7 @@ streamlit_script_mount = modal.Mount.from_local_file(
 @app.function(
     allow_concurrent_inputs=100,
     mounts=[streamlit_script_mount],
+    secrets= [modal.Secret.from_name("my-openai-secret")],
 )
 @modal.web_server(8000)
 def run():
